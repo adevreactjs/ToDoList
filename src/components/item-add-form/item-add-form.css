@@ -1,3 +1,13 @@
 .item-add-form {
     margin-top: 10px;
+    
+  }
+
+  .form-control .new-todo-label {
+    width: auto;
+    flex-grow: 1;
+    margin-right: 3px;
+  }
+  .form-control {
+    margin-right: 3px;
   }
