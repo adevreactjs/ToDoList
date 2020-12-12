@@ -4,15 +4,17 @@ import AppHeader from './components/app-header'
 import SearchPanel from './components/search-panel'
 import ToDoList from './components/todo-list'
 import ItemStatusFilter from './components/item-status-filter'
+import ItemAddForm from './components/item-add-form'
 import './index.css'
 
 export default class App extends Component {
 
+    maxId = 100
     state = {
         todoData: [
-            { label: 'Drink Coffee', important: false, id: 1},
-            { label: 'Make Awesome App', important: true, id: 2},
-            { label: 'Have a lunch', important: false, id: 3}
+            this.createElement('Drink Coffee'),
+            this.createElement('Make Awesome App'),
+            this.createElement('Have a lunch')
           ]
         } 
 
@@ -21,20 +23,86 @@ export default class App extends Component {
            const idx = todoData.findIndex((el) => el.id === id)
            todoData.splice(idx, 1)
 
-            const newArray = [... todoData.slice(0, idx), 
-                              ... todoData.slice(idx + 1)]
+            const newArray = [...todoData.slice(0, idx), 
+                              ...todoData.slice(idx + 1)]
             return {
                 todoData: newArray
             } 
         })
     }
 
+    createElement(label) {
+        return {
+            label: label,
+            important: false,
+            done: false,
+            id: this.maxId++
+        }
+
+    }
+
+    addItem = (text) => {
+
+        const newItem = {
+            label: text,
+            done: false,
+            important: false,
+            id: this.maxId++
+        }
+
+        this.setState(({todoData}) => {
+            
+            const newArray = [...todoData, newItem]
+
+            return {
+                todoData: newArray
+            }
+            
+        }) 
+    }
+    onToggleDone = (id) => {
+        this.setState(({todoData}) => {
+            const idx = todoData.findIndex((el) => el.id === id)
+            const oldItem = todoData[idx]
+            const newItem = {...oldItem, done: !oldItem.done}
+
+            const newArray = [...todoData.slice(0, idx), newItem,
+                ...todoData.slice(idx + 1)]
+
+                return {
+                    todoData: newArray
+
+                }
+        })
+
+
+    }
+    onToggleImportant = (id) => {
+
+        this.setState(({todoData}) => {
+            const idx = todoData.findIndex((el) => el.id === id)
+            const oldItem = todoData[idx]
+            const newItem = {...oldItem, important: !oldItem.important}
+
+            const newArray = [...todoData.slice(0, idx), newItem,
+                ...todoData.slice(idx + 1)]
+
+                return {
+                    todoData: newArray
+
+                }
+        })
+    }
+
     render() {
+
+        const doneCount = this.state.todoData.filter((el) => el.done).length
+        const toDoCount = this.state.todoData.length - doneCount
 
         return (
             <div className="todo-app">
-                <AppHeader toDo={1}
-                            done={3}/>
+                <AppHeader toDo={toDoCount}
+                            done={doneCount}/>
                 <div className="top-panel d-flex">
                     <SearchPanel/>
                     <ItemStatusFilter/>
@@ -42,7 +110,11 @@ export default class App extends Component {
                 
                 <ToDoList 
                 todoData={this.state.todoData}
-                onDelete1 ={this.onDelete} />
+                onDelete1 ={this.onDelete} 
+                onToggleDone ={this.onToggleDone}
+                onToggleImportant ={this.onToggleImportant}
+                />
+                <ItemAddForm addItem ={this.addItem}/>
              </div>
         )
         
